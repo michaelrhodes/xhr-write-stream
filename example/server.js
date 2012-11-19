@@ -4,13 +4,10 @@ var xws = require('../')();
 
 var server = http.createServer(function (req, res) {
     if (req.url === '/robots') {
-        xws(req, function (stream) {
+        req.pipe(xws(function (stream) {
             stream.pipe(process.stdout, { end : false });
-            stream.on('end', function () {
-                res.write('ok\n');
-                res.end();
-            });
-        });
+        }));
+        req.on('end', res.end.bind(res));
     }
     else ecstatic(req, res)
 });

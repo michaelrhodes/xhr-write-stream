@@ -1,6 +1,7 @@
 var qs = require('querystring');
 var OrderedEmitter = require('ordered-emitter');
 var Stream = require('stream');
+var concatStream = require('concat-stream');
 
 module.exports = function (cb) {
     var ord = new OrderedEmitter;
@@ -20,15 +21,11 @@ module.exports = function (cb) {
         return stream;
     }
     
-    return function (req, cb) {
-        var data = '';
-        
-        req.on('data', function (buf) {
-            data += buf;
-        });
-        
-        req.on('end', function () {
-            var params = qs.parse(data);
+    return function (cb) {
+        return concatStream(function (err, data) {
+            if (err) return;
+            
+            var params = qs.parse(String(data));
             if (!params) return;
             
             if (!streams[params.id]) {
