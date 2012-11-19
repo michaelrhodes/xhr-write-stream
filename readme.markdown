@@ -78,9 +78,12 @@ side.
 var createXWS = require('xhr-write-stream')
 ```
 
-## var xws = createXWS()
+## var xws = createXWS(opts={})
 
 Create a new `xws` stream pool.
+
+`opts.timeout` is the time in milliseconds to wait for connection activity
+before dropping the connection and removing the stream. Default value: 60*1000
 
 ## var ws = xws(cb)
 
