@@ -29,38 +29,44 @@ module.exports = function (opts) {
             
             var params = qs.parse(String(data));
             if (!params) return;
+            var s = streams[params.id];
             
-            if (!streams[params.id]) {
-                var s = streams[params.id] = new Stream;
+            if (!s) {
+                s = streams[params.id] = createStream(params.id, opts);
                 s.once('close', function () {
                     delete streams[params.id];
                 });
-                
-                s.resetTimeout = function () {
-                    if (s.timeout) clearTimeout(s.timeout);
-                    s.timeout = setTimeout(function () {
-                        s.emit('timeout');
-                        s.emit('close');
-                    }, opts.timeout);
-                }
-                if (opts.timeout) s.resetTimeout();
-                
-                s.ordered = new OrderedEmitter;
-                s.ordered.on('params', function (params) {
-                    if (params.data !== undefined) s.emit('data', params.data)
-                    if (params.end) {
-                        if (s.timeout) clearTimeout(s.timeout);
-                        s.emit('end');
-                        s.emit('close');
-                    }
-                });
-                
-                s.readable = true;
                 cb(s);
             }
-            if (opts.timeout) streams[params.id].resetTimeout();
-            streams[params.id].ordered.emit('params', params);
+            if (opts.timeout) s.resetTimeout();
+            s.ordered.emit('params', params);
         });
         return cs;
     };
 };
+
+function createStream (id, opts) {
+    var s = new Stream;
+    s.readable = true;
+    
+    s.resetTimeout = function () {
+        if (s.timeout) clearTimeout(s.timeout);
+        s.timeout = setTimeout(function () {
+            s.emit('timeout');
+            s.emit('close');
+        }, opts.timeout);
+    }
+    if (opts.timeout) s.resetTimeout();
+    
+    s.ordered = new OrderedEmitter;
+    s.ordered.on('params', function (params) {
+        if (params.data !== undefined) s.emit('data', params.data)
+        if (params.end) {
+            if (s.timeout) clearTimeout(s.timeout);
+            s.emit('end');
+            s.emit('close');
+        }
+    });
+    
+    return s;
+}
