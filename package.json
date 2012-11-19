@@ -1,0 +1,36 @@
+{
+    "name" : "xhr-write-stream",
+    "version" : "0.0.0",
+    "description" : "writable ordered stream of xhr requests",
+    "main" : "index.js",
+    "browserify" : "browser.js",
+    "bin" : {},
+    "directories" : {
+        "example" : "example",
+        "test" : "test"
+    },
+    "dependencies" : {},
+    "devDependencies" : {
+        "tap" : "~0.3.0"
+    },
+    "scripts" : {
+        "test" : "tap test/*.js"
+    },
+    "repository" : {
+        "type" : "git",
+        "url" : "git://github.com/substack/xhr-write-stream.git"
+    },
+    "homepage" : "https://github.com/substack/xhr-write-stream",
+    "keywords" : [
+        "xhr",
+        "http",
+        "browser",
+        "ajax"
+    ],
+    "author" : {
+        "name" : "James Halliday",
+        "email" : "mail@substack.net",
+        "url" : "http://substack.net"
+    },
+    "license" : "MIT"
+}
