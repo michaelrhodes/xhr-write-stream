@@ -52,7 +52,7 @@ module.exports = function (opts) {
         };
         var req = http.request(params);
         req.end(data);
-    };
+    }
     
     return stream
 };
