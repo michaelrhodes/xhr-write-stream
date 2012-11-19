@@ -3,7 +3,9 @@ var OrderedEmitter = require('ordered-emitter');
 var Stream = require('stream');
 var concatStream = require('concat-stream');
 
-module.exports = function (cb) {
+module.exports = function (opts) {
+    if (!opts) opts = {};
+    
     var ord = new OrderedEmitter;
     var streams = {};
     
@@ -22,7 +24,7 @@ module.exports = function (cb) {
     }
     
     return function (cb) {
-        return concatStream(function (err, data) {
+        var cs = concatStream(function (err, data) {
             if (err) return;
             
             var params = qs.parse(String(data));
@@ -30,11 +32,24 @@ module.exports = function (cb) {
             
             if (!streams[params.id]) {
                 var s = streams[params.id] = new Stream;
+                s.once('close', function () {
+                    delete streams[params.id];
+                });
+                
+                s.resetTimeout = function () {
+                    if (s.timeout) clearTimeout(s.timeout);
+                    s.timeout = setTimeout(function () {
+                        s.emit('timeout');
+                        s.emit('close');
+                    }, opts.timeout);
+                }
+                if (opts.timeout) s.resetTimeout();
                 
                 s.ordered = new OrderedEmitter;
                 s.ordered.on('params', function (params) {
                     if (params.data !== undefined) s.emit('data', params.data)
                     if (params.end) {
+                        if (s.timeout) clearTimeout(s.timeout);
                         s.emit('end');
                         s.emit('close');
                     }
@@ -43,7 +58,9 @@ module.exports = function (cb) {
                 s.readable = true;
                 cb(s);
             }
+            if (opts.timeout) streams[params.id].resetTimeout();
             streams[params.id].ordered.emit('params', params);
         });
+        return cs;
     };
 };
