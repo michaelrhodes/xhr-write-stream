@@ -9,20 +9,6 @@ module.exports = function (opts) {
     var ord = new OrderedEmitter;
     var streams = {};
     
-    function parse (req) {
-        
-        function write (buf) {
-            data += buf;
-        }
-        
-        function end () {
-            var params = qs.parse(data);
-            if (!requests[id]) requests[id]
-            console.dir(params);
-        }
-        return stream;
-    }
-    
     return function (cb) {
         var cs = concatStream(function (err, data) {
             if (err) return;
