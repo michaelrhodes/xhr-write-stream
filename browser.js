@@ -19,7 +19,28 @@ module.exports = function (opts) {
     
     stream.write = function (msg) {
         if (stream.ended) return;
+        var data = 'order=' + stream.order
+            + '&data=' + encode(msg)
+            + '&id=' + encode(opts.id)
+        ;
+        stream.order ++;
+        send(data);
+    };
+    
+    stream.end = function (msg) {
+        if (stream.ended) return;
         
+        var data = 'order=' + stream.order
+            + '&id=' + encode(opts.id)
+            + '&end=true'
+        ;
+        if (msg !== undefined) data += '&data=' + encode(msg);
+        stream.order ++;
+        send(data);
+        stream.ended = true;
+    };
+    
+    function send (data) {
         var params = {
             method : 'POST',
             host : opts.host || window.location.hostname,
@@ -30,19 +51,7 @@ module.exports = function (opts) {
             }
         };
         var req = http.request(params);
-        var data = 'order=' + stream.order
-            + '&data=' + encode(msg)
-            + '&id=' + encode(opts.id)
-        ;
         req.end(data);
-        stream.order ++;
-    };
-    
-    stream.end = function () {
-        if (stream.ended) return;
-        stream.order = -1;
-        //write(-1);
-        stream.ended = true;
     };
     
     return stream

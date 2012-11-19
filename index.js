@@ -36,7 +36,11 @@ module.exports = function (cb) {
                 
                 s.ordered = new OrderedEmitter;
                 s.ordered.on('params', function (params) {
-                    s.emit('data', params.data)
+                    if (params.data !== undefined) s.emit('data', params.data)
+                    if (params.end) {
+                        s.emit('end');
+                        s.emit('close');
+                    }
                 });
                 
                 s.readable = true;
