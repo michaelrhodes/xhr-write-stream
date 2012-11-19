@@ -1,6 +1,6 @@
 {
     "name" : "xhr-write-stream",
-    "version" : "0.0.0",
+    "version" : "0.0.1",
     "description" : "writable ordered stream of xhr requests",
     "main" : "index.js",
     "browserify" : "browser.js",

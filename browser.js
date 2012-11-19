@@ -27,6 +27,11 @@ module.exports = function (opts) {
         send(data);
     };
     
+    stream.destroy = function () {
+        stream.ended = true;
+        stream.emit('close');
+    };
+    
     stream.end = function (msg) {
         if (stream.ended) return;
         
@@ -38,6 +43,7 @@ module.exports = function (opts) {
         stream.order ++;
         send(data);
         stream.ended = true;
+        stream.emit('close');
     };
     
     function send (data) {
