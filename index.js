@@ -22,12 +22,16 @@ module.exports = function (opts) {
                 s = streams[params.id] = createStream(params.id, opts);
                 s.once('close', function () {
                     delete streams[params.id];
+                    if (!cs.closed) cs.emit('close');
                 });
                 cb(s);
             }
             if (opts.timeout) s.resetTimeout();
             s.ordered.emit('params', params);
         });
+        
+        cs.once('close', function () { cs.closed = true });
+        
         return cs;
     };
 };
