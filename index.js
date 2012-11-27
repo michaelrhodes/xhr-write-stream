@@ -15,6 +15,7 @@ module.exports = function (opts) {
             
             var params = qs.parse(String(data));
             if (!params) return;
+            params.order = Number(params.order);
             var s = streams[params.id];
             
             if (!s) {
