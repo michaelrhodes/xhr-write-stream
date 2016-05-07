@@ -45,7 +45,6 @@ module.exports = function (opts) {
         results.order++;
         send(data);
         results.ended = true;
-        results.emit('close');
     };
 
     function send (data) {
@@ -56,6 +55,11 @@ module.exports = function (opts) {
             'Content-Type',
             'application/x-www-form-urlencoded'
         );
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && results.ended) {
+            results.emit('close');
+          }
+        };
         xhr.send(data);
     }
 
