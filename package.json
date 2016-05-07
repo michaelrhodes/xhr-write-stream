@@ -10,7 +10,8 @@
     },
     "dependencies" : {
         "ordered-emitter" : "~0.1.0",
-        "concat-stream" : "~0.1.0"
+        "concat-stream" : "~0.1.0",
+        "stream-mixin" : "~0.0.0"
     },
     "repository" : {
         "type" : "git",

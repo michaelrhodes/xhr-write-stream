@@ -1,5 +1,5 @@
 var http = require('http');
-var Stream = require('stream');
+var Stream = require('stream-mixin');
 var encode = typeof encodeURIComponent !== 'undefined'
     ? encodeURIComponent : escape
 ;
@@ -13,7 +13,8 @@ module.exports = function (opts) {
         opts.id = Math.floor(Math.pow(16, 8) * Math.random()).toString(16);
     }
     
-    var stream = new Stream;
+    var stream = {};
+    Stream.call(stream);
     stream.writable = true;
     stream.order = 0;
     
