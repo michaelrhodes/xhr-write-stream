@@ -1,8 +1,7 @@
-var http = require('http');
-var Stream = require('stream-mixin');
-var encode = typeof encodeURIComponent !== 'undefined'
-    ? encodeURIComponent : escape
-;
+var stream = require('stream-mixin');
+var encode = typeof encodeURIComponent !== 'undefined' ?
+    encodeURIComponent :
+    escape;
 
 module.exports = function (opts) {
     if (typeof opts === 'string') {
@@ -13,53 +12,67 @@ module.exports = function (opts) {
         opts.id = Math.floor(Math.pow(16, 8) * Math.random()).toString(16);
     }
     
-    var stream = {};
-    Stream.call(stream);
-    stream.writable = true;
-    stream.order = 0;
+    var results = {};
+    stream.call(results);
+    results.writable = true;
+    results.order = 0;
     
-    stream.write = function (msg) {
-        if (stream.ended) return;
-        var data = 'order=' + stream.order
+    results.write = function (msg) {
+        if (results.ended) return;
+        var data = 'order=' + results.order
             + '&data=' + encode(msg)
-            + '&id=' + encode(opts.id)
-        ;
-        stream.order ++;
-        send(data);
-    };
-    
-    stream.destroy = function () {
-        stream.ended = true;
-        stream.emit('close');
-    };
-    
-    stream.end = function (msg) {
-        if (stream.ended) return;
+            + '&id=' + encode(opts.id);
         
-        var data = 'order=' + stream.order
-            + '&id=' + encode(opts.id)
-            + '&end=true'
-        ;
-        if (msg !== undefined) data += '&data=' + encode(msg);
-        stream.order ++;
+        results.order++;
         send(data);
-        stream.ended = true;
-        stream.emit('close');
     };
     
-    function send (data) {
-        var params = {
-            method : 'POST',
-            host : opts.host || window.location.hostname,
-            port : opts.port || window.location.port,
-            path : opts.path || '/',
-            headers : {
-                'content-type' : 'application/x-www-form-urlencoded'
-            }
-        };
-        var req = http.request(params);
-        req.end(data);
-    }
+    results.destroy = function () {
+        results.ended = true;
+        results.emit('close');
+    };
     
-    return stream
-};
+    results.end = function (msg) {
+        if (results.ended) return;
+        
+        var data = 'order=' + results.order
+            + '&id=' + encode(opts.id)
+            + '&end=true';
+        
+        if (msg !== undefined) {
+          data += '&data=' + encode(msg);
+        }
+        results.order++;
+        send(data);
+        results.ended = true;
+        results.emit('close');
+    };
+
+    function send (data) {
+        if (!data) return;
+        var xhr = XHR();
+        xhr.open('POST', opts.path || '/', true);
+        xhr.setRequestHeader(
+            'Content-Type',
+            'application/x-www-form-urlencoded'
+        );
+        xhr.send(data);
+    }
+
+    return results;
+}
+
+function XHR () {
+    if (typeof XMLHttpRequest !== 'undefined') {
+        return new XMLHttpRequest();
+    } try {
+        return new ActiveXObject('Msxml2.XMLHTTP');
+    } catch (e) {}
+    try {
+        return new ActiveXObject('Msxml3.XMLHTTP');
+    } catch (e) {}
+    try {
+        return new ActiveXObject('Microsoft.XMLHTTP');
+    } catch (e) {}
+    throw new Error('This browser does not support XMLHttpRequest.');
+}
